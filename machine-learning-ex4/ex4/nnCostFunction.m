@@ -63,8 +63,33 @@ Theta2_grad = zeros(size(Theta2));
 %
 
 
+X = [ones(m, 1) X];
+a2 = [ones(m, 1) sigmoid(X*Theta1')];
+a3 = sigmoid(a2*Theta2');
+for i=1 : m 
+	for k = 1:num_labels
+		y_k = y(i) == k;
+		h_ik = a3(i,k);
+		J = J - (y_k * log(h_ik) + (1-y_k) * log(1-h_ik))/m;
+	end
+end
 
+t1 = Theta1(:, 2:input_layer_size+1);
+t2 = Theta2(:, 2:hidden_layer_size+1);
 
+t_sum = 0;
+for i = 1:size(t1,1)
+	for j = 1:size(t1,2)
+		t_sum = t_sum + t1(i, j)^2;
+	end
+end
+for i = 1:size(t2, 1)
+	for j = 1:size(t2, 2)
+		t_sum = t_sum + t2(i,j)^2;
+	end
+end
+
+J = J + lambda*t_sum/(2*m);
 
 
 
