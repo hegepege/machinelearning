@@ -79,8 +79,8 @@ for i = 1 : m
 	end
 end
 
-t1 = Theta1(:, 2:input_layer_size+1);
-t2 = Theta2(:, 2:hidden_layer_size+1);
+t1 = Theta1(:, 2:end);
+t2 = Theta2(:, 2:end);
 
 t_sum = 0;
 for i = 1:size(t1,1)
@@ -88,6 +88,7 @@ for i = 1:size(t1,1)
 		t_sum = t_sum + t1(i, j)^2;
 	end
 end
+
 for i = 1:size(t2, 1)
 	for j = 1:size(t2, 2)
 		t_sum = t_sum + t2(i,j)^2;
@@ -95,7 +96,7 @@ for i = 1:size(t2, 1)
 end
 
 %http://stackoverflow.com/questions/21441457/neural-network-cost-function-in-matlab
-%J =J + (lambda/(2*m)) * (sum(sum(theta_1(:,2:end).^2,2)) + sum(sum(theta_2(:,2:end).^2,2)));
+%J =J + (lambda/(2*m)) * (sum(sum(t1(:,2:end).^2,2)) + sum(sum(t2(:,2:end).^2,2)));
 J = J + lambda*t_sum/(2*m);
 
 
@@ -105,31 +106,21 @@ J = J + lambda*t_sum/(2*m);
 delta_1 = zeros(size(Theta1));
 delta_2 = zeros(size(Theta2));
 
-for t = 1:m
-   % step 1
-   a_1 = X(t,:)';          
-   a_1 = [1 ; a_1];
-   z_2 = Theta1 * a_1;   
-   a_2 = sigmoid(z_2);  
-   a_2 = [1 ; a_2];
-   z_3 = Theta2 * a_2;
-   a_3 = sigmoid(z_3);
-   % step 2
+for i = 1:m  
    err_3 = zeros(num_labels,1);
    for k = 1:num_labels     
-      err_3(k) = a_3(k) - (y(t) == k);
+      err_3(k) = a3(i, k) - (y(i) == k);
    end
-   % step 3
+  
    err_2 = Theta2' * err_3;              
-   err_2 = err_2(2:end) .* sigmoidGradient(z_2);  
-   % step 4
-   delta_2 = delta_2 + err_3 * a_2';
-   delta_1 = delta_1 + err_2 * a_1';
+   err_2 = err_2(2:end) .* sigmoidGradient(z2(i, :)');
+ 
+   delta_2 = delta_2 + err_3 * a2(i, :);
+   delta_1 = delta_1 + err_2 * a1(i,:);
 end
 
-% step 5
-Theta1_temp = [zeros(size(Theta1,1),1) Theta1(:,2:end)];
-Theta2_temp = [zeros(size(Theta2,1),1) Theta2(:,2:end)];
+Theta1_temp = [zeros(hidden_layer_size, 1) Theta1(:,2:end)];
+Theta2_temp = [zeros(num_labels, 1) Theta2(:,2:end)];
 Theta1_grad = 1 / m * delta_1 + lambda/m * Theta1_temp;
 Theta2_grad = 1 / m * delta_2 + lambda/m * Theta2_temp ;
 
