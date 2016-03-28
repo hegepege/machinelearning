@@ -50,7 +50,9 @@ x = zeros(n, 1);
 
 
 
-
+for w = word_indices
+    x(w) = 1;
+end
 
 
 
